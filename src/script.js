@@ -74,10 +74,10 @@ const renderCostList = () => {
   consumpArr.map((elem, index) => {
     const { pencil, garbage } = images(elem, index);
     const li = document.createElement("li");
-    li.id =`li-${elem._id}`;
+    li.id = `li-${elem._id}`;
     li.innerText = `${index + 1}) `;
     li.append(
-      scoreName(elem, index),
+      storeName(elem, index),
       date(elem, index),
       sum(elem, index),
       pencil,
@@ -91,12 +91,12 @@ const renderCostList = () => {
 ////////////////////////////////////////////////////////////////////
 
 // create Score Name
-const scoreName = (elem, index) => {
+const storeName = (elem, index) => {
   const p = document.createElement("p");
   p.innerText = `Магазин "${elem.store}"`;
   p.id = `store-${elem._id}`;
   p.className = "name";
-  p.ondblclick = () => editField(elem,'store', p);
+  p.ondblclick = () => editField(elem, "store", p);
 
   return p;
 };
@@ -107,7 +107,7 @@ const date = (elem, index) => {
   p.innerText = elem.date;
   p.className = "date";
   p.id = `date-${elem._id}`;
-  p.ondblclick = () => editField(elem, 'date', p);
+  p.ondblclick = () => editField(elem, "date", p);
 
   return p;
 };
@@ -118,7 +118,7 @@ const sum = (elem, index) => {
   p.innerText = `${elem.cost} p.`;
   p.className = `cost`;
   p.id = `cost-${elem._id}`;
-  p.ondblclick = () => editField(elem, 'cost', p);
+  p.ondblclick = () => editField(elem, "cost", p);
 
   return p;
 };
@@ -131,7 +131,7 @@ const images = (elem, index) => {
   pencil.src = "img/edit.svg";
   pencil.className = "edit";
   pencil.id = `edit-${elem._id}`;
-  pencil.onclick = () => editThisNote(index);
+  pencil.onclick = () => editThisNote(elem);
 
   garbage.src = "img/delete.svg";
   garbage.className = "delete";
@@ -144,92 +144,139 @@ const images = (elem, index) => {
 
 // edit fiel to double click
 const editField = (element, field, htmlElem) => {
-  let {_id, store, cost, date, __v } = element;
-    const input = document.createElement('input');
-    input.type = (field === 'store' || field === 'cost') ? 'text' : 'date';
+  let { _id, store, cost, date, __v } = element;
+  const input = document.createElement("input");
+  input.type = field === "store" || field === "cost" ? "text" : "date";
+  input.className = 'editable'
 
-    const editImage = document.getElementById(`edit-${_id}`);
-    const deleteImage = document.getElementById(`delete-${_id}`);
-    editImage.style.visibility = 'hidden';
-    deleteImage.style.visibility = 'hidden';
+  const editImage = document.getElementById(`edit-${_id}`);
+  const deleteImage = document.getElementById(`delete-${_id}`);
+  editImage.style.visibility = "hidden";
+  deleteImage.style.visibility = "hidden";
 
-    switch (field) {
-      case 'store': {
-        input.value = store;
-        break;
-      }
-      case 'date': {
-        input.value = date;
-        break;
-      }
-      case 'cost': {
-        input.value = cost;
-        break;
-      }
+  switch (field) {
+    case "store": {
+      input.value = store;
+      break;
     }
+    case "date": {
+      input.value = date;
+      break;
+    }
+    case "cost": {
+      input.value = cost;
+      break;
+    }
+  }
 
-    const li = document.getElementById(`li-${_id}`);
-    storeNameElem = li.replaceChild(input, htmlElem);
+  const li = document.getElementById(`li-${_id}`);
+  storeNameElem = li.replaceChild(input, htmlElem);
 
-    input.focus();
-    
-    input.onblur = () => saveOrDelete(input, element, field);
-}
+  input.focus();
+  input.onblur = () => saveOrDelete(input, element, field);
+};
 
-// delete Note from DB
+// delete request
 const deleteThisNote = async (elem) => {
-    const response = await fetch(`http://localhost:8000/deleteConsumption?_id=${elem._id}`, {
-            method: 'DELETE',
-        })
-        const result = await response.json();
-        consumpArr = result.data;
-        renderTotalSum();
-        renderCostList();
-}
+  const response = await fetch(
+    `http://localhost:8000/deleteConsumption?_id=${elem._id}`,
+    {
+      method: "DELETE",
+    }
+  );
+  const result = await response.json();
+  consumpArr = result.data;
+  renderTotalSum();
+  renderCostList();
+};
+
+// Patch request
+const patchRequest = async (element) => {
+  const response = await fetch(
+    `http://localhost:8000/updateConsuption?_id=${element._id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(element),
+    }
+  );
+  const result = await response.json();
+  consumpArr = result.data;
+  renderTotalSum();
+  renderCostList();
+};
 
 //saves or deletes note
 const saveOrDelete = async (input, elem, replacement) => {
-    let {_id, store, cost, date, __v } = elem;
+  if (!input.value) {
+    alert("Нет записи - нет покупки)");
+    deleteThisNote(elem);
+    return;
+  }
 
-    if (!input.value) {
-        alert('Нет записи - нет покупки)');
-        deleteThisNote(elem);
-        return;
+  switch (replacement) {
+    case "store": {
+      elem.store = input.value;
+      break;
     }
-
-    switch (replacement) {
-        case 'store': {
-          store = input.value;
-          break;
-        }
-        case 'date': {
-          date = input.value;
-          break;
-        }
-        case 'cost': {
-          cost = input.value;
-        }
+    case "date": {
+      elem.date = input.value;
+      break;
     }
-
-    const response = await fetch(`http://localhost:8000/updateConsuption?_id=${elem._id}`, {
-        method: 'PATCH',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json;charset=utf-8'
-        },
-        body : JSON.stringify({
-            _id: _id,
-            store: store,
-            cost: cost,
-            date: date,
-            __v: __v
-        })
-    });
-
-    const result = await response.json();
-        consumpArr = result.data;
-        renderTotalSum();
-        renderCostList();
-}
+    case "cost": {
+      elem.cost = input.value;
+    }
+  }
+  await patchRequest(elem);
+};
 
 //edit all fields
+const editThisNote = (element) => {
+  let { _id, store, cost, date, __v } = element;
+  const li = document.getElementById(`li-${_id}`);
+  const storeHtml = document.getElementById(`store-${_id}`);
+  const dateHtml = document.getElementById(`date-${_id}`);
+  const costHtml = document.getElementById(`cost-${_id}`);
+  const done = document.getElementById(`edit-${_id}`);
+  const cancel = document.getElementById(`delete-${_id}`);
+
+  const storeInput = document.createElement('input');
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  const costInput = document.createElement('input');
+
+  storeInput.value = store;
+  dateInput.value = date;
+  costInput.value = cost;
+
+  storeInput.className = 'store-name';
+  dateInput.className = 'date-of-cost';
+  costInput.className = 'cost-input';
+
+  li.replaceChild(storeInput, storeHtml);
+  li.replaceChild(dateInput, dateHtml);
+  li.replaceChild(costInput, costHtml);
+
+  done.src = 'img/tick.svg';
+  cancel.src = 'img/close.svg';
+
+  done.onclick = () => saveChanges(element, storeInput, dateInput, costInput);
+  cancel.onclick = () => renderCostList();
+};
+
+// save changes
+const saveChanges = (element, storeInput, dateInput, costInput) => {
+  if (!storeInput || !dateInput || !costInput) {
+    if(confirm('Одно из полей пустое, продолжаем?')) {
+      deleteThisNote(element);
+    }
+    storeInput.focus();
+  }
+  element.store = storeInput.value;
+  element.date = dateInput.value;
+  element.cost = costInput.value;
+  patchRequest(element);
+}

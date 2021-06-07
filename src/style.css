@@ -107,7 +107,7 @@ li {
 
 
 li p {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     width: 25%;
     max-width: 30%;
     overflow-wrap: break-word;
@@ -130,8 +130,29 @@ img:hover {
     width: 20%
 }
 
-.consumption {
+.cost {
  width: 30%;
+}
+
+.editable {
+    width: 25%;
+    height: 60%;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.4rem;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: lighter;
+}
+
+
+.store-name, .date-of-cost, .cost-input{
+    width: 25%;
+    height: 60%;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.3rem;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: lighter;
 }
 
 @media screen and (min-width: 1440px) {
