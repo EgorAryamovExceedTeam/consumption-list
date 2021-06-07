@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -35,21 +35,12 @@
               placeholder="Сколько было потрачено"
             />
           </div>
-          <button class="add">Добавить</button>
+          <button id="add" onclick="createNewNote()">Добавить</button>
         </div>
         <div class="total-container">
-          <p id="total">Итого: 0 p.</p>
+          <p id="total"></p>
         </div>
-        <ol class="consumption-list">
-          <li>
-            <p class="index"></p>
-            <p class="name">blalala</p>
-            <p class="date">1664</p>
-            <p class="consumption">500</p>
-            <img src="img/edit.svg" alt="" />
-            <img src="img/delete.svg" alt="" />
-          </li>
-        </ol>
+        <ol class="consumptions-list"></ol>
       </div>
     </div>
     <script src="script.js"></script>
