@@ -10,7 +10,7 @@ module.exports.getAllConsumptions = (req, res, next) => {
 // create new consumption or error
 module.exports.createNewConsumption = (req, res, next) => {
     const body = req.body;
-    if (body.hasOwnProperty('score') && body.hasOwnProperty('cost')) {
+    if (body.hasOwnProperty('store') && body.hasOwnProperty('cost')) {
         const consump = new Consumption(body);
         consump.date = new Date().toISOString().slice(0,10);
         consump.save().then(() => {
@@ -26,7 +26,7 @@ module.exports.createNewConsumption = (req, res, next) => {
 // change consumption
 module.exports.changeThisConsumption = (req, res, next) => {
     const body = req.body;
-    if (body.hasOwnProperty('_id') && body.hasOwnProperty('date') && (body.hasOwnProperty('score') || body.hasOwnProperty('cost'))){
+    if (body.hasOwnProperty('_id') && body.hasOwnProperty('date') && (body.hasOwnProperty('store') || body.hasOwnProperty('cost'))){
         Consumption.updateOne({_id: body._id}, body).then(() => {
             Consumption.find().then(result => {
                 res.send({data: result});
@@ -45,4 +45,3 @@ module.exports.deleteThisConsumption = (req, res, next) => {
         })
     })
 }
-

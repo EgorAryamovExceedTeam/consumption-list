@@ -1,5 +1,5 @@
 let consumpArr = [];
-let scoreNameInput = document.getElementById("consumption-name");
+let storeNameInput = document.getElementById("consumption-name");
 let howMuchInput = document.getElementById("consumption-value");
 let addConsumption = document.getElementById("add");
 let totalSum = document.getElementById("total");
@@ -15,19 +15,19 @@ window.onload = async () => {
 };
 
 // current values score's and cost's in input
-let scoreNameInputCurrentValue = "";
+let storeNameInputCurrentValue = "";
 let howMuchInputCurrentValue = "";
 
 howMuchInput.addEventListener("change", (e) => {
   howMuchInputCurrentValue = e.target.value;
 });
-scoreNameInput.addEventListener("change", (e) => {
-  scoreNameInputCurrentValue = e.target.value;
+storeNameInput.addEventListener("change", (e) => {
+  storeNameInputCurrentValue = e.target.value;
 });
 
 // add new consumption function
 const createNewNote = async () => {
-  if (scoreNameInputCurrentValue && howMuchInputCurrentValue) {
+  if (storeNameInputCurrentValue && howMuchInputCurrentValue) {
     if (Number(howMuchInputCurrentValue)) {
       const response = await fetch("http://localhost:8000/createConsumption", {
         method: "POST",
@@ -36,15 +36,15 @@ const createNewNote = async () => {
           "Content-Type": "application/json;charset=utf-8",
         },
         body: JSON.stringify({
-          score: scoreNameInputCurrentValue,
+          store: storeNameInputCurrentValue,
           cost: howMuchInputCurrentValue,
         }),
       });
       const result = await response.json();
       consumpArr = result.data;
-      scoreNameInput.value = "";
+      storeNameInput.value = "";
       howMuchInput.value = "";
-      scoreNameInputCurrentValue = "";
+      storeNameInputCurrentValue = "";
       howMuchInputCurrentValue = "";
       renderTotalSum();
       renderCostList();
@@ -93,10 +93,10 @@ const renderCostList = () => {
 // create Score Name
 const scoreName = (elem, index) => {
   const p = document.createElement("p");
-  p.innerText = `Магазин "${elem.score}"`;
-  p.id = `score-${elem._id}`;
+  p.innerText = `Магазин "${elem.store}"`;
+  p.id = `store-${elem._id}`;
   p.className = "name";
-  p.ondblclick = () => editScoreName(elem, index, p);
+  p.ondblclick = () => editField(elem,'store', p);
 
   return p;
 };
@@ -107,7 +107,7 @@ const date = (elem, index) => {
   p.innerText = elem.date;
   p.className = "date";
   p.id = `date-${elem._id}`;
-  p.ondblclick = () => editDate(index, p);
+  p.ondblclick = () => editField(elem, 'date', p);
 
   return p;
 };
@@ -118,7 +118,7 @@ const sum = (elem, index) => {
   p.innerText = `${elem.cost} p.`;
   p.className = `cost`;
   p.id = `cost-${elem._id}`;
-  p.ondblclick = () => editCost(index, p);
+  p.ondblclick = () => editField(elem, 'cost', p);
 
   return p;
 };
@@ -136,42 +136,81 @@ const images = (elem, index) => {
   garbage.src = "img/delete.svg";
   garbage.className = "delete";
   garbage.id = `delete-${elem._id}`;
-  garbage.onclick = () => deleteThisNote(index);
+  garbage.onclick = () => deleteThisNote(elem);
 
   return { pencil, garbage };
 };
 ///////////////////////////////////////////////////////////////////
 
-// edit Name of Score
-const editScoreName = (element, index, scoreNameElem) => {
+// edit fiel to double click
+const editField = (element, field, htmlElem) => {
+  let {_id, store, cost, date, __v } = element;
     const input = document.createElement('input');
-    input.type = 'text';
-    input.value = `${element.score}`
+    input.type = (field === 'store' || field === 'cost') ? 'text' : 'date';
 
-    const li = document.getElementById(`li-${element._id}`);
-    scoreNameElem = li.replaceChild(input, scoreNameElem);
+    const editImage = document.getElementById(`edit-${_id}`);
+    const deleteImage = document.getElementById(`delete-${_id}`);
+    editImage.style.visibility = 'hidden';
+    deleteImage.style.visibility = 'hidden';
+
+    switch (field) {
+      case 'store': {
+        input.value = store;
+        break;
+      }
+      case 'date': {
+        input.value = date;
+        break;
+      }
+      case 'cost': {
+        input.value = cost;
+        break;
+      }
+    }
+
+    const li = document.getElementById(`li-${_id}`);
+    storeNameElem = li.replaceChild(input, htmlElem);
 
     input.focus();
     
-    input.onblur = () => saveOrDelete(input, li, element, scoreNameElem);
+    input.onblur = () => saveOrDelete(input, element, field);
 }
 
+// delete Note from DB
 const deleteThisNote = async (elem) => {
     const response = await fetch(`http://localhost:8000/deleteConsumption?_id=${elem._id}`, {
             method: 'DELETE',
         })
         const result = await response.json();
         consumpArr = result.data;
+        renderTotalSum();
         renderCostList();
 }
 
-const saveOrDelete = async (input, li, elem, scoreNameElem) => {
-    const {_id, score, cost, date, __v } = elem;
+//saves or deletes note
+const saveOrDelete = async (input, elem, replacement) => {
+    let {_id, store, cost, date, __v } = elem;
+
     if (!input.value) {
-        alert('Магазина нет, значит нет покупки)');
+        alert('Нет записи - нет покупки)');
         deleteThisNote(elem);
         return;
     }
+
+    switch (replacement) {
+        case 'store': {
+          store = input.value;
+          break;
+        }
+        case 'date': {
+          date = input.value;
+          break;
+        }
+        case 'cost': {
+          cost = input.value;
+        }
+    }
+
     const response = await fetch(`http://localhost:8000/updateConsuption?_id=${elem._id}`, {
         method: 'PATCH',
         headers: {
@@ -180,13 +219,17 @@ const saveOrDelete = async (input, li, elem, scoreNameElem) => {
         },
         body : JSON.stringify({
             _id: _id,
-            score: input.value,
+            store: store,
             cost: cost,
             date: date,
             __v: __v
         })
     });
+
     const result = await response.json();
         consumpArr = result.data;
+        renderTotalSum();
         renderCostList();
 }
+
+//edit all fields
