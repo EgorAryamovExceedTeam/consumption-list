@@ -76,13 +76,7 @@ const renderCostList = () => {
     const li = document.createElement("li");
     li.id = `li-${elem._id}`;
     li.innerText = `${index + 1}) `;
-    li.append(
-      storeName(elem, index),
-      date(elem, index),
-      sum(elem, index),
-      pencil,
-      garbage
-    );
+    li.append(storeName(elem), date(elem), sum(elem), pencil, garbage);
     list.append(li);
   });
 };
@@ -91,7 +85,7 @@ const renderCostList = () => {
 ////////////////////////////////////////////////////////////////////
 
 // create Score Name
-const storeName = (elem, index) => {
+const storeName = (elem) => {
   const p = document.createElement("p");
   p.innerText = `Магазин "${elem.store}"`;
   p.id = `store-${elem._id}`;
@@ -102,7 +96,7 @@ const storeName = (elem, index) => {
 };
 
 // create date of note
-const date = (elem, index) => {
+const date = (elem) => {
   const p = document.createElement("p");
   p.innerText = elem.date;
   p.className = "date";
@@ -113,7 +107,7 @@ const date = (elem, index) => {
 };
 
 // create sum of cost
-const sum = (elem, index) => {
+const sum = (elem) => {
   const p = document.createElement("p");
   p.innerText = `${elem.cost} p.`;
   p.className = `cost`;
@@ -124,7 +118,7 @@ const sum = (elem, index) => {
 };
 
 // create edit and delete buttons
-const images = (elem, index) => {
+const images = (elem) => {
   const pencil = document.createElement("img");
   const garbage = document.createElement("img");
 
@@ -144,7 +138,7 @@ const images = (elem, index) => {
 
 // edit fiel to double click
 const editField = (element, field, htmlElem) => {
-  let { _id, store, cost, date, __v } = element;
+  let { _id, store, cost, date } = element;
   const input = document.createElement("input");
   input.type = field === "store" || field === "cost" ? "text" : "date";
   input.className = "editable";
@@ -235,7 +229,7 @@ const saveOrDelete = async (input, elem, replacement) => {
 
 //edit all fields
 const editThisNote = (element) => {
-  let { _id, store, cost, date, __v } = element;
+  let { _id, store, cost, date } = element;
   const li = document.getElementById(`li-${_id}`);
   const storeHtml = document.getElementById(`store-${_id}`);
   const dateHtml = document.getElementById(`date-${_id}`);
