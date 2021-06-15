@@ -147,7 +147,7 @@ const editField = (element, field, htmlElem) => {
   let { _id, store, cost, date, __v } = element;
   const input = document.createElement("input");
   input.type = field === "store" || field === "cost" ? "text" : "date";
-  input.className = 'editable'
+  input.className = "editable";
 
   const editImage = document.getElementById(`edit-${_id}`);
   const deleteImage = document.getElementById(`delete-${_id}`);
@@ -243,25 +243,25 @@ const editThisNote = (element) => {
   const done = document.getElementById(`edit-${_id}`);
   const cancel = document.getElementById(`delete-${_id}`);
 
-  const storeInput = document.createElement('input');
-  const dateInput = document.createElement('input');
-  dateInput.type = 'date';
-  const costInput = document.createElement('input');
+  const storeInput = document.createElement("input");
+  const dateInput = document.createElement("input");
+  dateInput.type = "date";
+  const costInput = document.createElement("input");
 
   storeInput.value = store;
   dateInput.value = date;
   costInput.value = cost;
 
-  storeInput.className = 'store-name';
-  dateInput.className = 'date-of-cost';
-  costInput.className = 'cost-input';
+  storeInput.className = "store-name";
+  dateInput.className = "date-of-cost";
+  costInput.className = "cost-input";
 
   li.replaceChild(storeInput, storeHtml);
   li.replaceChild(dateInput, dateHtml);
   li.replaceChild(costInput, costHtml);
 
-  done.src = 'img/tick.svg';
-  cancel.src = 'img/close.svg';
+  done.src = "img/tick.svg";
+  cancel.src = "img/close.svg";
 
   done.onclick = () => saveChanges(element, storeInput, dateInput, costInput);
   cancel.onclick = () => renderCostList();
@@ -270,7 +270,7 @@ const editThisNote = (element) => {
 // save changes
 const saveChanges = (element, storeInput, dateInput, costInput) => {
   if (!storeInput || !dateInput || !costInput) {
-    if(confirm('Одно из полей пустое, продолжаем?')) {
+    if (confirm("Одно из полей пустое, продолжаем?")) {
       deleteThisNote(element);
     }
     storeInput.focus();
@@ -279,4 +279,4 @@ const saveChanges = (element, storeInput, dateInput, costInput) => {
   element.date = dateInput.value;
   element.cost = costInput.value;
   patchRequest(element);
-}
+};
